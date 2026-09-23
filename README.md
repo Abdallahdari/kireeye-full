@@ -260,6 +260,7 @@ Log in at http://localhost:3000/login with that email and password to open the a
 | `SMTP_HOST` / `SMTP_PORT` | SMTP server | `smtp.gmail.com` / `465` |
 | `SMTP_USER` / `SMTP_PASS` | Gmail address and a 16-character **App Password**. Leave empty to log emails to the console. | — |
 | `EMAIL_FROM` | Sender shown in emails | `Stayly <you@gmail.com>` |
+| `CONTACT_EMAIL` | Inbox that receives contact-form messages | defaults to `SMTP_USER` |
 | `FREE_LISTING_LIMIT` | Free listings per business | `5` |
 | `SUBSCRIPTION_PRICE_USD` | Monthly subscription price | `10` |
 | `WAAFI_MODE` | `live`, `sandbox`, or `mock` | `mock` in development |
@@ -328,6 +329,11 @@ All endpoints are under `/api`. Full interactive documentation, with request and
 | POST | `/` | Authenticated | Report a user or listing (`SCAM_OR_FRAUD`, `HARASSMENT`, `SUSPICIOUS_ACTIVITY`, `FAKE_LISTING`, `OTHER`) |
 | GET | `/` | SUPER_ADMIN | List reports |
 | PATCH | `/:id/status` | SUPER_ADMIN | Update a report's status |
+
+### Contact — `/api/contact`
+| Method | Path | Access | Description |
+|---|---|---|---|
+| POST | `/` | Public (rate-limited) | Send a contact-form message to `CONTACT_EMAIL` (reply-to is the sender) |
 
 ### Other
 | Method | Path | Description |

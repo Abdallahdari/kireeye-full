@@ -353,3 +353,20 @@ export function recordManualPayment(businessId: string, note?: string) {
     body: JSON.stringify({ note: note || undefined }),
   });
 }
+
+export type ContactTopic = "GENERAL" | "RENTING" | "LISTING" | "BILLING" | "SUPPORT";
+
+export interface ContactInput {
+  name: string;
+  email: string;
+  phone?: string;
+  topic: ContactTopic;
+  message: string;
+}
+
+export function sendContactMessage(input: ContactInput) {
+  return request<Record<string, never>>("/contact", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}

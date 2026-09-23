@@ -13,7 +13,7 @@ export function LanguageSwitcher() {
   const { locale, setLocale } = useLanguage();
 
   return (
-    <div className="flex items-center rounded-full border border-zinc-200 p-0.5 text-xs font-semibold">
+    <div className="flex items-center rounded-full border border-rose-100 bg-white p-0.5 text-xs font-semibold">
       {options.map((option) => (
         <button
           key={option.value}
@@ -22,7 +22,7 @@ export function LanguageSwitcher() {
           aria-pressed={locale === option.value}
           className={cn(
             "rounded-full px-2.5 py-1 transition-colors",
-            locale === option.value ? "bg-zinc-900 text-white" : "text-zinc-500 hover:text-zinc-900"
+            locale === option.value ? "bg-gradient-to-r from-rose-600 to-orange-500 text-white" : "text-zinc-500 hover:text-rose-700"
           )}
         >
           {option.label}

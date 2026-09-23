@@ -125,7 +125,7 @@ export default function Home() {
             </label>
             <button
               type="submit"
-              className="rounded-full bg-zinc-900 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800"
+              className="rounded-full bg-gradient-to-r from-rose-600 to-orange-500 px-6 py-3 text-center text-sm font-semibold text-white shadow-md shadow-rose-200 transition hover:brightness-110"
             >
               {t("home.search")}
             </button>
@@ -190,12 +190,14 @@ export default function Home() {
       </section>
 
       <section className="px-6 py-16">
-        <div className="mx-auto flex max-w-6xl flex-col items-center rounded-2xl bg-zinc-900 px-8 py-12 text-center text-white">
-          <h2 className="text-2xl font-semibold">{t("home.ctaTitle")}</h2>
-          <p className="mt-2 max-w-md text-zinc-300">{t("home.ctaSubtitle")}</p>
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-rose-500 px-8 py-14 text-center text-white shadow-xl shadow-violet-200">
+          <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-20 -right-10 h-64 w-64 rounded-full bg-orange-300/30 blur-3xl" />
+          <h2 className="relative text-3xl font-bold">{t("home.ctaTitle")}</h2>
+          <p className="relative mt-2 max-w-md text-violet-50/90">{t("home.ctaSubtitle")}</p>
           <Link
             href="/register"
-            className="mt-6 rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-900 hover:bg-zinc-100"
+            className="relative mt-6 rounded-full bg-white px-6 py-3 text-sm font-semibold text-violet-700 shadow-lg hover:bg-violet-50"
           >
             {t("home.ctaButton")}
           </Link>

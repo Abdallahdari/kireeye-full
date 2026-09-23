@@ -50,6 +50,9 @@ export const env = {
     from: process.env.EMAIL_FROM ?? `Stayly <${process.env.SMTP_USER ?? "no-reply@stayly.local"}>`,
   },
 
+  // Inbox that receives contact-form messages. Defaults to the SMTP account.
+  contactEmail: process.env.CONTACT_EMAIL ?? process.env.SMTP_USER,
+
   billing: {
     // Lifetime number of listings a business can publish before it needs a
     // paid subscription.

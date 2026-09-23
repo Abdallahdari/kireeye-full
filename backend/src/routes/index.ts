@@ -4,6 +4,7 @@ import userRoutes from "./user.routes";
 import reportRoutes from "./report.routes";
 import propertyRoutes from "./property.routes";
 import billingRoutes from "./billing.routes";
+import contactRoutes from "./contact.routes";
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use("/users", userRoutes);
 router.use("/reports", reportRoutes);
 router.use("/properties", propertyRoutes);
 router.use("/billing", billingRoutes);
+router.use("/contact", contactRoutes);
 
 export default router;

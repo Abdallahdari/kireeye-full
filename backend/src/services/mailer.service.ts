@@ -72,3 +72,50 @@ export function sendBusinessApprovalEmail(to: string, approved: boolean): void {
     `<p>${text}</p>`
   ).catch((err) => logger.error(`[mailer] Failed to send business approval email to ${to}`, err));
 }
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export function sendContactMessage(input: {
+  name: string;
+  email: string;
+  phone?: string;
+  topic: string;
+  message: string;
+}): void {
+  const to = env.contactEmail;
+  if (!to) {
+    console.log(`[mailer] Contact message (no CONTACT_EMAIL/SMTP_USER set) from ${input.email}: ${input.message}`);
+    return;
+  }
+
+  logger.info(`[mailer] Contact message from ${input.email} (${input.topic})`);
+
+  const text = `From: ${input.name} <${input.email}>\nPhone: ${input.phone || "—"}\nTopic: ${input.topic}\n\n${input.message}`;
+  const html = `<p><strong>From:</strong> ${escapeHtml(input.name)} &lt;${escapeHtml(input.email)}&gt;</p>
+     <p><strong>Phone:</strong> ${escapeHtml(input.phone || "—")}</p>
+     <p><strong>Topic:</strong> ${escapeHtml(input.topic)}</p>
+     <p style="white-space:pre-wrap">${escapeHtml(input.message)}</p>`;
+
+  if (!transporter) {
+    console.log(`[mailer] Contact message -> ${to}: ${text}`);
+    return;
+  }
+
+  transporter
+    .sendMail({
+      from: env.smtp.from,
+      to,
+      replyTo: input.email,
+      subject: `[Stayly contact] ${input.topic} — ${input.name}`,
+      text,
+      html,
+    })
+    .catch((err) => logger.error(`[mailer] Failed to send contact message from ${input.email}`, err));
+}
