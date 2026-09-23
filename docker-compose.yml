@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    environment:
+      # MONGODB_URI comes from backend/.env (Atlas) — no override here, so
+      # Docker Compose and `npm run dev` always talk to the same database.
+      CLIENT_URL: http://localhost:3000
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      # Listing images live on disk, so persist them across rebuilds.
+      - uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./my-app
+      args:
+        # Baked into the build manifest by `next build` (see Dockerfile).
+        INTERNAL_API_URL: http://backend:5000
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Server-to-server URL Server Components use to reach the backend
+      # inside the Docker network (read at runtime, unlike the build arg above).
+      INTERNAL_API_URL: http://backend:5000
+      AUTH_COOKIE_NAME: token
+    depends_on:
+      - backend
+
+volumes:
+  uploads:
