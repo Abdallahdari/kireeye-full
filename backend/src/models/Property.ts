@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from "mongoose";
 
-export const MAX_PROPERTY_IMAGES = 8;
+export const MAX_PROPERTY_IMAGES = 4;
 
 export interface IProperty extends Document {
   _id: Types.ObjectId;

@@ -13,7 +13,7 @@ import {
   Mail,
   MapPin,
   Menu,
-  ShieldAlert,
+  Newspaper,
   Sparkles,
   Wallet,
   X,
@@ -24,6 +24,7 @@ import { useLanguage } from "./language-provider";
 import { LanguageSwitcher } from "./language-switcher";
 import { cn } from "@/lib/cn";
 import { POPULAR_CITIES } from "@/lib/site";
+import { Logo } from "@/components/logo";
 
 type MenuKey = "explore" | "business" | "company";
 
@@ -120,6 +121,13 @@ export function Header() {
       description: t("nav.howItWorksDesc"),
     },
     {
+      href: "/blog",
+      icon: Newspaper,
+      tone: "bg-rose-100 text-rose-600",
+      label: t("nav.blog"),
+      description: t("nav.blogDesc"),
+    },
+    {
       href: "/contact",
       icon: Mail,
       tone: "bg-amber-100 text-amber-600",
@@ -132,13 +140,6 @@ export function Header() {
       tone: "bg-teal-100 text-teal-600",
       label: t("nav.support"),
       description: t("nav.supportDesc"),
-    },
-    {
-      href: user ? "/dashboard/report" : "/login",
-      icon: ShieldAlert,
-      tone: "bg-red-100 text-red-600",
-      label: t("nav.reportIssue"),
-      description: t("nav.reportIssueDesc"),
     },
   ];
 
@@ -212,11 +213,8 @@ export function Header() {
 
       <div className="border-b border-rose-100/70 bg-white/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3.5">
-          <Link href="/" onClick={closeAll} className="flex items-center gap-2 text-lg font-bold text-zinc-900">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-orange-400 text-sm font-bold text-white shadow-md shadow-rose-200">
-              S
-            </span>
-            Stayly
+          <Link href="/" onClick={closeAll} aria-label="Kireeye home">
+            <Logo />
           </Link>
 
           {/* Desktop navigation */}
@@ -285,14 +283,16 @@ export function Header() {
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
                     <div className="dash-pop-in absolute right-0 z-20 mt-2 w-52 rounded-2xl border border-zinc-100 bg-white p-1.5 shadow-xl shadow-rose-900/10">
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-zinc-700 hover:bg-rose-50 hover:text-rose-700"
-                        onClick={closeAll}
-                      >
-                        <LayoutDashboard className="h-4 w-4" />
-                        {t("nav.dashboard")}
-                      </Link>
+                      {user.role !== "TENANT" && (
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-zinc-700 hover:bg-rose-50 hover:text-rose-700"
+                          onClick={closeAll}
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          {t("nav.dashboard")}
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-zinc-700 hover:bg-rose-50 hover:text-rose-700"

@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, Building2, CalendarCheck, CheckCircle2, Circle, CreditCard, Flag, ShieldCheck, UserCircle } from "lucide-react";
+import { ArrowRight, Building2, CalendarCheck, CheckCircle2, Circle, CreditCard, ShieldCheck, UserCircle } from "lucide-react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
-import { LockedAnalyticsPanel } from "@/components/ui/charts";
+import { RecentListings } from "@/components/dashboard/recent-listings";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/components/language-provider";
 import { cn } from "@/lib/cn";
@@ -43,7 +43,6 @@ export function BusinessOverview({ user }: { user: User }) {
     { label: t("dashboard.business.overview.stepVerifyEmail"), done: user.isEmailVerified },
     { label: t("dashboard.business.overview.stepGetApproved"), done: user.businessApproval === "APPROVED" },
     { label: t("dashboard.business.overview.stepAddListing"), done: hasListing },
-    { label: t("dashboard.business.overview.stepFirstBooking"), done: false },
   ];
   const doneCount = steps.filter((s) => s.done).length;
 
@@ -51,8 +50,6 @@ export function BusinessOverview({ user }: { user: User }) {
     { label: t("dashboard.business.overview.actionCompleteProfile"), href: "/dashboard/business/profile", icon: UserCircle },
     { label: t("dashboard.business.overview.actionViewListings"), href: "/dashboard/business/listings", icon: Building2 },
     { label: t("dashboard.business.overview.actionBilling"), href: "/dashboard/business/billing", icon: CreditCard },
-    { label: t("dashboard.business.overview.actionViewBookings"), href: "/dashboard/business/bookings", icon: CalendarCheck },
-    { label: t("dashboard.business.overview.actionReportUser"), href: "/dashboard/report", icon: Flag },
   ];
 
   return (
@@ -97,8 +94,8 @@ export function BusinessOverview({ user }: { user: User }) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
           <CardHeader
             title={t("dashboard.business.overview.checklistTitle")}
             subtitle={`${doneCount}/${steps.length}`}
@@ -125,19 +122,7 @@ export function BusinessOverview({ user }: { user: User }) {
           </div>
         </Card>
 
-        <Card className="lg:col-span-1" padded={false}>
-          <div className="p-5 sm:p-6">
-            <CardHeader title={t("dashboard.business.overviewComingSoonTitle")} />
-          </div>
-          <div className="px-5 pb-5 sm:px-6 sm:pb-6">
-            <LockedAnalyticsPanel
-              title={t("dashboard.business.overviewComingSoonTitle")}
-              description={t("dashboard.business.overviewComingSoonBody")}
-            />
-          </div>
-        </Card>
-
-        <Card className="lg:col-span-1">
+        <Card>
           <CardHeader title={t("dashboard.business.overview.quickActionsTitle")} />
           <div className="mt-4 flex flex-col gap-2">
             {quickActions.map((action) => (
@@ -156,6 +141,8 @@ export function BusinessOverview({ user }: { user: User }) {
           </div>
         </Card>
       </div>
+
+      <RecentListings mode="business" />
     </div>
   );
 }

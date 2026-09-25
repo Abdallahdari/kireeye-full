@@ -2,6 +2,8 @@
 
 import type {
   BillingStatus,
+  BlogPost,
+  ComingSoonItem,
   BillingSummary,
   BillingTotals,
   BusinessApprovalStatus,
@@ -369,4 +371,90 @@ export function sendContactMessage(input: ContactInput) {
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+// ---- Coming soon slides (home page hero) ----
+
+export interface ComingSoonInput {
+  title: string;
+  description: string;
+  location: string;
+  link: string;
+  isActive: boolean;
+  order: number;
+  // Required when creating; optional when editing (replaces the current one).
+  image?: File | null;
+}
+
+/** Multipart body for admin content forms: `image` is sent as a file, everything else as text. */
+function contentForm(input: object) {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(input)) {
+    if (key === "image") {
+      if (value instanceof File) form.set("image", value);
+    } else if (value !== undefined) {
+      form.set(key, String(value));
+    }
+  }
+  return form;
+}
+
+/** Active slides for the public home page. */
+export function listComingSoon() {
+  return request<{ items: ComingSoonItem[] }>("/coming-soon", { method: "GET" });
+}
+
+/** Every slide, including hidden ones (SUPER_ADMIN only). */
+export function listAllComingSoon() {
+  return request<{ items: ComingSoonItem[] }>("/coming-soon/all", { method: "GET" });
+}
+
+export function createComingSoon(input: ComingSoonInput) {
+  return request<{ item: ComingSoonItem }>("/coming-soon", { method: "POST", body: contentForm(input) });
+}
+
+export function updateComingSoon(id: string, input: Partial<ComingSoonInput>) {
+  return request<{ item: ComingSoonItem }>(`/coming-soon/${id}`, { method: "PATCH", body: contentForm(input) });
+}
+
+export function deleteComingSoon(id: string) {
+  return request<void>(`/coming-soon/${id}`, { method: "DELETE" });
+}
+
+// ---- Blog ----
+
+export interface BlogPostInput {
+  title: string;
+  excerpt: string;
+  content: string;
+  isPublished: boolean;
+  // A new cover image; on edit, removeImage drops the current one instead.
+  image?: File | null;
+  removeImage?: boolean;
+}
+
+/** Published posts, newest first (no full text). */
+export function listBlogPosts(params: { page?: number; limit?: number } = {}) {
+  return request<{ posts: BlogPost[]; pagination: Pagination }>(`/blog${propertiesQuery(params)}`, {
+    method: "GET",
+  });
+}
+
+/** Every post, including drafts (SUPER_ADMIN only). */
+export function listAllBlogPosts(params: { page?: number; limit?: number } = {}) {
+  return request<{ posts: BlogPost[]; pagination: Pagination }>(`/blog/all${propertiesQuery(params)}`, {
+    method: "GET",
+  });
+}
+
+export function createBlogPost(input: BlogPostInput) {
+  return request<{ post: BlogPost }>("/blog", { method: "POST", body: contentForm(input) });
+}
+
+export function updateBlogPost(id: string, input: Partial<BlogPostInput>) {
+  return request<{ post: BlogPost }>(`/blog/posts/${id}`, { method: "PATCH", body: contentForm(input) });
+}
+
+export function deleteBlogPost(id: string) {
+  return request<void>(`/blog/posts/${id}`, { method: "DELETE" });
 }

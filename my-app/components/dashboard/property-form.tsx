@@ -12,11 +12,11 @@ import * as api from "@/lib/api-client";
 import { SOMALI_NATIONAL_NUMBER_LENGTH, toSomaliNationalDigits } from "@/lib/somali-phone";
 import { MOGADISHU_DISTRICTS, isSomaliCity } from "@/lib/locations";
 import { CitySelect } from "@/components/ui/city-select";
+import { MAX_ORIGINAL_IMAGE_BYTES, MAX_UPLOAD_IMAGE_BYTES, resizeImage } from "@/lib/resize-image";
 import type { Property } from "@/lib/types";
 
-// Kept in sync with backend/src/middleware/upload.ts and models/Property.ts.
-const MAX_IMAGES = 8;
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+// Kept in sync with backend/src/models/Property.ts.
+const MAX_IMAGES = 4;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const textareaClass =
@@ -44,6 +44,7 @@ export function PropertyForm({ onCreated, onCancel }: { onCreated: (property: Pr
   const [images, setImages] = useState<SelectedImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [processingImages, setProcessingImages] = useState(false);
 
   // Release preview object URLs when images are removed or the form unmounts.
   const imagesRef = useRef(images);
@@ -52,30 +53,38 @@ export function PropertyForm({ onCreated, onCancel }: { onCreated: (property: Pr
   }, [images]);
   useEffect(() => () => imagesRef.current.forEach((img) => URL.revokeObjectURL(img.previewUrl)), []);
 
-  function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? []);
     e.target.value = "";
     setError(null);
 
+    const room = MAX_IMAGES - images.length;
+    if (picked.length > room) {
+      setError(t("listings.form.errorTooManyImages", { max: MAX_IMAGES }));
+    }
+
+    // Photos are shrunk to web size before upload (see lib/resize-image.ts).
+    setProcessingImages(true);
     const valid: SelectedImage[] = [];
-    for (const file of picked) {
-      if (!ACCEPTED_TYPES.includes(file.type)) {
+    for (const original of picked.slice(0, room)) {
+      if (!ACCEPTED_TYPES.includes(original.type)) {
         setError(t("listings.form.errorImageType"));
         continue;
       }
-      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      if (original.size > MAX_ORIGINAL_IMAGE_BYTES) {
+        setError(t("listings.form.errorImageSize"));
+        continue;
+      }
+      const file = await resizeImage(original).catch(() => original);
+      if (file.size > MAX_UPLOAD_IMAGE_BYTES) {
         setError(t("listings.form.errorImageSize"));
         continue;
       }
       valid.push({ file, previewUrl: URL.createObjectURL(file) });
     }
+    setProcessingImages(false);
 
-    const room = MAX_IMAGES - images.length;
-    if (valid.length > room) {
-      valid.slice(room).forEach((img) => URL.revokeObjectURL(img.previewUrl));
-      setError(t("listings.form.errorTooManyImages", { max: MAX_IMAGES }));
-    }
-    setImages((prev) => [...prev, ...valid.slice(0, room)]);
+    setImages((prev) => [...prev, ...valid].slice(0, MAX_IMAGES));
   }
 
   function removeImage(index: number) {
@@ -242,8 +251,9 @@ export function PropertyForm({ onCreated, onCancel }: { onCreated: (property: Pr
           {images.length < MAX_IMAGES && (
             <button
               type="button"
+              disabled={processingImages}
               onClick={() => fileInputRef.current?.click()}
-              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-zinc-200 text-zinc-500 transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-zinc-200 text-zinc-500 transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 disabled:cursor-wait disabled:opacity-60"
             >
               <ImagePlus className="h-5 w-5" />
               <span className="text-xs font-medium">{t("listings.form.addImages")}</span>
@@ -265,7 +275,7 @@ export function PropertyForm({ onCreated, onCancel }: { onCreated: (property: Pr
         <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
           {t("listings.form.cancel")}
         </Button>
-        <Button type="submit" loading={loading}>
+        <Button type="submit" loading={loading} disabled={processingImages}>
           {t("listings.form.submit")}
         </Button>
       </div>

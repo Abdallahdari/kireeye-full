@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
-import type { Property, User } from "./types";
+import type { BlogPost, Property, User } from "./types";
 
 // Server-to-server URL for the backend (see next.config.ts for the matching
 // browser-facing rewrite). Falls back to localhost for `npm run dev` outside Docker.
@@ -55,6 +55,24 @@ export const getProperty = cache(async (id: string): Promise<Property | null> =>
 
     const body = await res.json();
     return body?.data?.property ?? null;
+  } catch {
+    return null;
+  }
+});
+
+/** Fetches one published blog post for the /blog/[slug] page. Null if missing or a draft. */
+export const getBlogPost = cache(async (slug: string): Promise<BlogPost | null> => {
+  try {
+    const res = await fetch(`${INTERNAL_API_URL}/api/blog/${encodeURIComponent(slug)}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const body = await res.json();
+    return body?.data?.post ?? null;
   } catch {
     return null;
   }

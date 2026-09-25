@@ -1,6 +1,6 @@
-# Stayly — Home Rental Platform for Somalia
+# Kireeye — Home Rental Platform for Somalia
 
-Stayly is a full-stack home-rental marketplace built for the Somali market. Businesses (landlords and agencies) publish rental listings with photos, tenants browse and contact them, and a super admin moderates accounts, listings, and reports and manages billing. Businesses pay a monthly subscription through **WaafiPay** mobile money (EVC Plus, ZAAD, SAHAL).
+Kireeye is a full-stack home-rental marketplace built for the Somali market. Businesses (landlords and agencies) publish rental listings with photos, tenants browse and contact them, and a super admin moderates accounts, listings, and reports and manages billing. Businesses pay a monthly subscription through **WaafiPay** mobile money (EVC Plus, ZAAD, SAHAL).
 
 The UI is available in **English and Somali**, and the app validates Somali phone numbers and recognizes Somali cities and mobile carriers (e.g. Hormuud).
 
@@ -36,7 +36,7 @@ The UI is available in **English and Somali**, and the app validates Somali phon
 
 ### For businesses
 - Register as a business (a super admin must approve the account)
-- Create listings with 1–8 images (JPEG/PNG/WebP, 5 MB each)
+- Create listings with 1–4 images (JPEG/PNG/WebP; resized in the browser to 1600px, 2 MB max each)
 - Manage their own listings from a business dashboard
 - See their billing status and free-listing allowance, and pay the subscription with mobile money
 
@@ -259,7 +259,7 @@ Log in at http://localhost:3000/login with that email and password to open the a
 | `AUTH_RATE_LIMIT_MAX` | Max auth requests per window | `20` |
 | `SMTP_HOST` / `SMTP_PORT` | SMTP server | `smtp.gmail.com` / `465` |
 | `SMTP_USER` / `SMTP_PASS` | Gmail address and a 16-character **App Password**. Leave empty to log emails to the console. | — |
-| `EMAIL_FROM` | Sender shown in emails | `Stayly <you@gmail.com>` |
+| `EMAIL_FROM` | Sender shown in emails | `Kireeye <you@gmail.com>` |
 | `CONTACT_EMAIL` | Inbox that receives contact-form messages | defaults to `SMTP_USER` |
 | `FREE_LISTING_LIMIT` | Free listings per business | `5` |
 | `SUBSCRIPTION_PRICE_USD` | Monthly subscription price | `10` |
@@ -284,7 +284,7 @@ All endpoints are under `/api`. Full interactive documentation, with request and
 ### Auth — `/api/auth`
 | Method | Path | Access | Description |
 |---|---|---|---|
-| POST | `/register` | Public | Register a TENANT or BUSINESS account (sends a verification email) |
+| POST | `/register` | Public | Register a TENANT or BUSINESS account (no email is sent; account starts verified) |
 | POST | `/login` | Public | Log in; sets an HTTP-only JWT cookie |
 | POST | `/logout` | Authenticated | Clear the session cookie |
 | GET | `/me` | Authenticated | Current user's profile |
@@ -298,7 +298,7 @@ All endpoints are under `/api`. Full interactive documentation, with request and
 |---|---|---|---|
 | GET | `/` | Public | List published listings (filters: `city`, `neighborhood`, `minPrice`, `maxPrice`, `minRooms`, `page`, `limit`) |
 | GET | `/:id` | Public | Listing details with the poster's name and phone |
-| POST | `/` | Approved BUSINESS | Create a listing (multipart form with 1–8 images). Returns `402` if the business must pay first. |
+| POST | `/` | Approved BUSINESS | Create a listing (multipart form with 1–4 images). Returns `402` if the business must pay first. |
 | GET | `/mine` | BUSINESS | The business's own listings |
 | DELETE | `/:id` | Owner / SUPER_ADMIN | Delete a listing |
 | GET | `/all` | SUPER_ADMIN | Every listing, with search (`q`) and a mobile-provider filter (`provider`) |

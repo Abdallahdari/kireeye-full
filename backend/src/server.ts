@@ -28,6 +28,9 @@ async function main(): Promise<void> {
 
   const server = app.listen(env.port, () => {
     logger.info(`Server listening on port ${env.port} [${env.nodeEnv}]`);
+    logger.info(
+      env.s3.bucket ? `[uploads] Storing images in S3 bucket ${env.s3.bucket} (${env.s3.region})` : "[uploads] S3_BUCKET not set — storing images on local disk"
+    );
   });
 
   const shutdown = (signal: string) => {

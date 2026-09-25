@@ -4,7 +4,9 @@ import {
   CreditCard,
   Flag,
   LayoutDashboard,
+  Newspaper,
   ShieldCheck,
+  Sparkles,
   UserCircle,
   Users,
 } from "lucide-react";
@@ -23,6 +25,8 @@ export const navIcons = {
   bookings: CalendarCheck,
   report: Flag,
   billing: CreditCard,
+  comingSoon: Sparkles,
+  blog: Newspaper,
 } as const;
 
 export type NavIconKey = keyof typeof navIcons;

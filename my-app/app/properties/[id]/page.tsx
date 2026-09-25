@@ -9,9 +9,9 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const property = await getProperty(id);
-  if (!property) return { title: "Listing not found — Stayly" };
+  if (!property) return { title: "Listing not found — Kireeye" };
 
-  const title = `${property.neighborhood}, ${property.city} · ${formatUsd(property.price)}/month — Stayly`;
+  const title = `${property.neighborhood}, ${property.city} · ${formatUsd(property.price)}/month — Kireeye`;
   return {
     title,
     description: property.description.slice(0, 160),

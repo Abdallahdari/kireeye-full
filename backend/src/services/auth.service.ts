@@ -16,8 +16,6 @@ export async function registerUser(input: RegisterInput): Promise<IUser> {
     throw new AppError("An account with this email already exists", 409);
   }
 
-  const { raw, hash } = generateSecureToken();
-
   const user = await User.create({
     firstName: input.firstName,
     lastName: input.lastName,
@@ -27,14 +25,10 @@ export async function registerUser(input: RegisterInput): Promise<IUser> {
     password: input.password,
     role: input.role,
     businessApproval: input.role === Role.BUSINESS ? BusinessApprovalStatus.PENDING : null,
-    isEmailVerified: false,
+    // No verification email is sent on sign-up, so accounts start out verified.
+    isEmailVerified: true,
     isActive: true,
-    emailVerificationTokenHash: hash,
-    emailVerificationExpires: new Date(Date.now() + EMAIL_VERIFICATION_TTL_MS),
   });
-
-  const verifyUrl = `${env.clientUrl}/verify-email?token=${raw}`;
-  sendVerificationEmail(user.email, verifyUrl);
 
   return user;
 }

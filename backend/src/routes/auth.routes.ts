@@ -28,7 +28,7 @@ const router = Router();
  *           schema: { $ref: '#/components/schemas/RegisterInput' }
  *     responses:
  *       201:
- *         description: Registration successful, verification email sent
+ *         description: Registration successful
  *         content:
  *           application/json:
  *             schema:

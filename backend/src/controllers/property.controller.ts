@@ -106,7 +106,7 @@ export const exportProperties = asyncHandler(async (req: Request, res: Response)
     metadata: { filters, rows: rowCount - 1 },
   });
 
-  const filename = `stayly-listings-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  const filename = `kireeye-listings-${new Date().toISOString().slice(0, 10)}.xlsx`;
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
   res.setHeader("Cache-Control", "no-store");

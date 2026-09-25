@@ -71,7 +71,7 @@ const router = Router();
  *               deposit: { type: number, description: Security deposit in USD }
  *               images:
  *                 type: array
- *                 description: 1–8 JPEG/PNG/WebP images, 5MB each
+ *                 description: 1–4 JPEG/PNG/WebP images, 2MB each
  *                 items: { type: string, format: binary }
  *     responses:
  *       201: { description: Listing published }

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PropertiesHeader } from "./properties-header";
 import { PropertyBrowser } from "@/components/property-browser";
+import { PropertyGridSkeleton } from "@/components/property-card-skeleton";
 
 export const metadata: Metadata = {
-  title: "Properties for rent — Stayly",
+  title: "Properties for rent — Kireeye",
   description: "Browse homes and apartments for rent posted by verified businesses.",
 };
 
@@ -14,7 +15,7 @@ export default function PropertiesPage() {
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <PropertiesHeader />
         {/* useSearchParams inside PropertyBrowser needs a Suspense boundary. */}
-        <Suspense>
+        <Suspense fallback={<PropertyGridSkeleton />}>
           <PropertyBrowser />
         </Suspense>
       </div>

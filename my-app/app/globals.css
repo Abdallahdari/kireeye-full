@@ -76,3 +76,32 @@ body {
   background-color: rgba(148, 163, 184, 0.4);
   border-radius: 9999px;
 }
+
+/* Homepage hero Swiper: white pagination bullets over the photos */
+.hero-slider .swiper-pagination-bullet {
+  background: #fff;
+  opacity: 0.5;
+  margin: 0 !important;
+  transition: width 0.3s, opacity 0.3s;
+}
+.hero-slider .swiper-pagination-bullet-active {
+  opacity: 1;
+  width: 1.5rem;
+  border-radius: 9999px;
+}
+
+/* How-it-works stepper: the segment toward the next step fills while it waits */
+@keyframes step-segment-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.step-segment-fill {
+  transform-origin: left;
+  animation-name: step-segment-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}

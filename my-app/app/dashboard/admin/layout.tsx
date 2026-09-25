@@ -10,6 +10,8 @@ const navItems: DashboardNavItem[] = [
   { labelKey: "dashboard.admin.nav.listings", href: "/dashboard/admin/listings", icon: "listings" },
   { labelKey: "dashboard.admin.nav.billing", href: "/dashboard/admin/billing", icon: "billing" },
   { labelKey: "dashboard.admin.nav.reports", href: "/dashboard/admin/reports", icon: "reports" },
+  { labelKey: "dashboard.admin.nav.comingSoon", href: "/dashboard/admin/coming-soon", icon: "comingSoon" },
+  { labelKey: "dashboard.admin.nav.blog", href: "/dashboard/admin/blog", icon: "blog" },
   { labelKey: "dashboard.admin.nav.profile", href: "/dashboard/admin/profile", icon: "profile" },
 ];
 

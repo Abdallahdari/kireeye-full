@@ -159,7 +159,7 @@ export async function exportPropertiesWorkbook(options: PropertyFilterOptions): 
     .lean();
 
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Stayly";
+  workbook.creator = "Kireeye";
   workbook.created = new Date();
   const sheet = workbook.addWorksheet("Listings", { views: [{ state: "frozen", ySplit: 1 }] });
 

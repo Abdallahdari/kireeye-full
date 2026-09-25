@@ -114,19 +114,8 @@ function useRoleAlerts(user: User): DashboardAlert[] {
       return [];
     }
 
-    if (user.role === "TENANT" && !user.isEmailVerified) {
-      return [
-        {
-          id: "verify-email",
-          label: t("dashboard.shell.alertVerifyEmail"),
-          description: t("dashboard.shell.alertVerifyEmailBody"),
-          href: "/dashboard",
-        },
-      ];
-    }
-
     return [];
-  }, [user.role, user.businessApproval, user.isEmailVerified, t]);
+  }, [user.role, user.businessApproval, t]);
 
   return user.role === "SUPER_ADMIN" ? adminAlerts : selfAlerts;
 }
@@ -176,8 +165,8 @@ export function DashboardShell({
 
   return (
     <div className="flex w-full flex-1 bg-zinc-50">
-      <DashboardSidebar items={navItems} brand="Stayly" collapsed={collapsed} onToggleCollapsed={toggle} />
-      <MobileSidebarDrawer items={navItems} brand="Stayly" open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <DashboardSidebar items={navItems} brand="kireeye" collapsed={collapsed} onToggleCollapsed={toggle} />
+      <MobileSidebarDrawer items={navItems} brand="kireeye" open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <DashboardTopbar

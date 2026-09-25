@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Building2, Download, Loader2, Plus, Search, Trash2, X } from "lucide-react";
+import { Building2, Download, Plus, Search, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PaginationFooter } from "@/components/ui/pagination";
 import { PropertyCard } from "@/components/property-card";
+import { PropertyGridSkeleton } from "@/components/property-card-skeleton";
 import { PropertyForm } from "@/components/dashboard/property-form";
 import { selectClass } from "@/components/ui/city-select";
 import { BillingBanner } from "@/components/dashboard/billing-banner";
@@ -273,10 +274,7 @@ export function PropertyListings({ mode }: { mode: "business" | "admin" }) {
         )}
 
         {loading ? (
-          <div className="flex flex-col items-center gap-2 px-5 py-14 text-zinc-400">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-sm">{t("listings.loading")}</span>
-          </div>
+          <PropertyGridSkeleton count={3} className="grid gap-5 p-5 sm:grid-cols-2 xl:grid-cols-3" />
         ) : properties.length === 0 ? (
           <div className="p-5">
             <EmptyState
@@ -305,6 +303,7 @@ export function PropertyListings({ mode }: { mode: "business" | "admin" }) {
                 <PropertyCard
                   key={property._id}
                   property={property}
+                  showContact
                   showOwnerEmail={isAdmin}
                   actions={
                     isConfirming ? (

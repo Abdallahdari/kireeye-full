@@ -276,7 +276,7 @@ async function processWalletPayment(paymentId: Types.ObjectId, meta: { ip?: stri
     amount: payment.amount,
     currency: "USD",
     referenceId: payment._id.toString(),
-    description: `Stayly monthly subscription`,
+    description: `Kireeye monthly subscription`,
   });
 
   if (result.approved) {
@@ -494,7 +494,7 @@ export async function exportBillingWorkbook(options: BillingListOptions): Promis
     .lean();
 
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Stayly";
+  workbook.creator = "Kireeye";
   workbook.created = new Date();
 
   const sheet = workbook.addWorksheet("Businesses", { views: [{ state: "frozen", ySplit: 1 }] });

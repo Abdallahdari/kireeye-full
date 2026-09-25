@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Stayly — Book with confidence",
+  title: "Kireeye — Book with confidence",
   description: "Find a place to stay, or list your own — booking management made simple.",
 };
 

@@ -34,9 +34,9 @@ export function sendVerificationEmail(to: string, verifyUrl: string): void {
 
   send(
     to,
-    "Verify your email — Stayly",
-    `Welcome to Stayly! Verify your email: ${verifyUrl} (expires in 24 hours)`,
-    `<p>Welcome to Stayly! Click below to verify your email address.</p>
+    "Verify your email — Kireeye",
+    `Welcome to Kireeye! Verify your email: ${verifyUrl} (expires in 24 hours)`,
+    `<p>Welcome to Kireeye! Click below to verify your email address.</p>
      <p><a href="${verifyUrl}">Verify my email</a></p>
      <p style="color:#71717a;font-size:13px">This link expires in 24 hours. If you didn't create an account, you can ignore this email.</p>`
   ).catch((err) => logger.error(`[mailer] Failed to send verification email to ${to}`, err));
@@ -47,7 +47,7 @@ export function sendPasswordResetEmail(to: string, resetUrl: string): void {
 
   send(
     to,
-    "Reset your password — Stayly",
+    "Reset your password — Kireeye",
     `Reset your password: ${resetUrl} (expires in 1 hour)`,
     `<p>We received a request to reset your password. Click below to choose a new one.</p>
      <p><a href="${resetUrl}">Reset my password</a></p>
@@ -59,8 +59,8 @@ export function sendBusinessApprovalEmail(to: string, approved: boolean): void {
   logger.info(`[mailer] Business ${approved ? "approval" : "rejection"} email to ${to}`);
 
   const subject = approved
-    ? "Your business account is approved — Stayly"
-    : "Update on your business registration — Stayly";
+    ? "Your business account is approved — Kireeye"
+    : "Update on your business registration — Kireeye";
   const text = approved
     ? "Good news — your business account has been approved. You can now log in."
     : "Your business registration wasn't approved. Contact support if you have questions.";
@@ -113,7 +113,7 @@ export function sendContactMessage(input: {
       from: env.smtp.from,
       to,
       replyTo: input.email,
-      subject: `[Stayly contact] ${input.topic} — ${input.name}`,
+      subject: `[Kireeye contact] ${input.topic} — ${input.name}`,
       text,
       html,
     })

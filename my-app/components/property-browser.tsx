@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Building2, Search, X } from "lucide-react";
 import { PropertyCard } from "@/components/property-card";
+import { PropertyGridSkeleton } from "@/components/property-card-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PaginationFooter } from "@/components/ui/pagination";
 import { Alert } from "@/components/ui/alert";
@@ -184,11 +185,7 @@ export function PropertyBrowser() {
       )}
 
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }, (_, i) => (
-            <div key={i} className="h-[28rem] animate-pulse rounded-2xl bg-zinc-100" />
-          ))}
-        </div>
+        <PropertyGridSkeleton />
       ) : properties.length === 0 ? (
         <EmptyState
           icon={Building2}

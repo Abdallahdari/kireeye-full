@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CircleCheck, Send } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { useAuth } from "@/components/auth-provider";
 import { Alert } from "@/components/ui/alert";
@@ -53,11 +53,9 @@ export function ContactForm() {
 
   if (sent) {
     return (
-      <div className="dash-animate-in mt-8 flex flex-col items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 px-6 py-12 text-center ring-1 ring-emerald-100">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-400 text-white shadow-lg shadow-emerald-200">
-          <CircleCheck className="h-7 w-7" />
-        </span>
-        <p className="mt-5 max-w-sm font-medium text-emerald-800">{t("contact.success")}</p>
+      <div className="mt-8 flex flex-col items-start rounded-xl border border-emerald-200 bg-emerald-50 p-6">
+        <CircleCheck aria-hidden className="h-7 w-7 text-emerald-600" />
+        <p className="mt-3 max-w-sm font-medium text-emerald-900">{t("contact.success")}</p>
         <Button variant="secondary" className="mt-6" onClick={() => setSent(false)}>
           {t("contact.sendAnother")}
         </Button>
@@ -135,9 +133,8 @@ export function ContactForm() {
       <Button
         type="submit"
         loading={submitting}
-        className="self-start bg-gradient-to-r from-rose-600 to-orange-500 px-7 py-3 shadow-lg shadow-rose-200 hover:brightness-110"
+        className="self-start px-6 py-3"
       >
-        {!submitting && <Send className="h-4 w-4" />}
         {submitting ? t("contact.sending") : t("contact.send")}
       </Button>
     </form>

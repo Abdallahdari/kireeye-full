@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Bath, BedDouble, EyeOff, Mail, MapPin, Phone, UserCircle } from "lucide-react";
+import { ArrowRight, Bath, BedDouble, EyeOff, Mail, MapPin, Phone, UserCircle } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { describeSomaliPhone } from "@/lib/somali-phone";
 import { formatUsd } from "@/lib/format";
@@ -11,10 +11,14 @@ import type { Property } from "@/lib/types";
 
 export function PropertyCard({
   property,
+  showContact = false,
   showOwnerEmail,
   actions,
 }: {
   property: Property;
+  // The poster's name and phone only show on the single listing page and in
+  // the dashboards — public listing grids leave them out.
+  showContact?: boolean;
   // Admin view: the owner's email is only returned by the admin endpoint.
   showOwnerEmail?: boolean;
   actions?: React.ReactNode;
@@ -22,19 +26,37 @@ export function PropertyCard({
   const { t } = useLanguage();
   const [activeImage, setActiveImage] = useState(0);
   const cover = property.images[activeImage] ?? property.images[0];
+  // Which image has finished downloading; until it matches `cover` a pulse placeholder shows.
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const coverReady = loadedSrc === cover;
   const phone = describeSomaliPhone(property.phone);
   const href = `/properties/${property._id}`;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm">
-      <Link href={href} className="relative block aspect-[4/3] bg-zinc-100">
+      <Link
+        href={href}
+        className={cn(
+          "relative block aspect-[4/3] bg-zinc-100",
+          cover && !coverReady && "animate-pulse bg-zinc-200/80 motion-reduce:animate-none",
+        )}
+      >
         {cover && (
           // eslint-disable-next-line @next/next/no-img-element -- served by our own backend via the /api rewrite
           <img
             src={cover}
             alt={`${property.neighborhood}, ${property.city}`}
-            className="h-full w-full object-cover"
+            className={cn(
+              "h-full w-full object-cover transition-opacity duration-500",
+              coverReady ? "opacity-100" : "opacity-0",
+            )}
             loading="lazy"
+            // Cached images can finish before React attaches onLoad, so also check on mount.
+            ref={(img) => {
+              if (img?.complete && img.naturalWidth > 0) setLoadedSrc(img.getAttribute("src"));
+            }}
+            onLoad={() => setLoadedSrc(cover)}
+            onError={() => setLoadedSrc(cover)}
           />
         )}
         {property.images.length > 1 && (
@@ -98,33 +120,45 @@ export function PropertyCard({
 
         <p className="line-clamp-3 whitespace-pre-line text-sm text-zinc-600">{property.description}</p>
 
-        <div className="mt-auto flex flex-col gap-1.5 rounded-xl bg-zinc-50 p-3 text-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">{t("listings.postedBy")}</p>
-          <p className="flex items-center gap-1.5 font-medium text-zinc-900">
-            <UserCircle className="h-4 w-4 text-zinc-400" />
-            {property.owner.firstName} {property.owner.lastName}
-          </p>
-          <a href={`tel:${property.phone}`} className="flex items-center gap-1.5 text-rose-700 hover:text-rose-800">
-            <Phone className="h-4 w-4" />
-            {phone.formatted}
-            {phone.provider && <span className="text-xs text-zinc-500">· {phone.provider}</span>}
-          </a>
-          {showOwnerEmail && property.owner.email && (
-            <p className="flex items-center gap-1.5 text-zinc-600">
-              <Mail className="h-4 w-4 text-zinc-400" />
-              {property.owner.email}
+        {showContact ? (
+          <div className="mt-auto flex flex-col gap-1.5 rounded-xl bg-zinc-50 p-3 text-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">{t("listings.postedBy")}</p>
+            <p className="flex items-center gap-1.5 font-medium text-zinc-900">
+              <UserCircle className="h-4 w-4 text-zinc-400" />
+              {property.owner.firstName} {property.owner.lastName}
             </p>
-          )}
-          {showOwnerEmail && property.owner.city && (
-            <p className="flex items-center gap-1.5 text-zinc-600">
-              <MapPin className="h-4 w-4 text-zinc-400" />
-              {t("listings.ownerCity", { city: property.owner.city })}
+            <a href={`tel:${property.phone}`} className="flex items-center gap-1.5 text-rose-700 hover:text-rose-800">
+              <Phone className="h-4 w-4" />
+              {phone.formatted}
+              {phone.provider && <span className="text-xs text-zinc-500">· {phone.provider}</span>}
+            </a>
+            {showOwnerEmail && property.owner.email && (
+              <p className="flex items-center gap-1.5 text-zinc-600">
+                <Mail className="h-4 w-4 text-zinc-400" />
+                {property.owner.email}
+              </p>
+            )}
+            {showOwnerEmail && property.owner.city && (
+              <p className="flex items-center gap-1.5 text-zinc-600">
+                <MapPin className="h-4 w-4 text-zinc-400" />
+                {t("listings.ownerCity", { city: property.owner.city })}
+              </p>
+            )}
+            <p className="text-xs text-zinc-400">
+              {t("listings.postedOn", { date: new Date(property.createdAt).toLocaleDateString() })}
             </p>
-          )}
-          <p className="text-xs text-zinc-400">
-            {t("listings.postedOn", { date: new Date(property.createdAt).toLocaleDateString() })}
-          </p>
-        </div>
+          </div>
+        ) : (
+          <div className="mt-auto flex items-center justify-between gap-3 border-t border-zinc-100 pt-3 text-sm">
+            <span className="text-xs text-zinc-400">
+              {t("listings.postedOn", { date: new Date(property.createdAt).toLocaleDateString() })}
+            </span>
+            <Link href={href} className="inline-flex items-center gap-1 font-medium text-rose-600 hover:text-rose-700">
+              {t("listings.viewDetails")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        )}
 
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>

@@ -7,8 +7,6 @@ const navItems: DashboardNavItem[] = [
   { labelKey: "dashboard.business.nav.overview", href: "/dashboard/business", icon: "overview" },
   { labelKey: "dashboard.business.nav.listings", href: "/dashboard/business/listings", icon: "listings" },
   { labelKey: "dashboard.business.nav.billing", href: "/dashboard/business/billing", icon: "billing" },
-  { labelKey: "dashboard.business.nav.bookings", href: "/dashboard/business/bookings", icon: "bookings" },
-  { labelKey: "dashboard.business.nav.reportUser", href: "/dashboard/report", icon: "report" },
   { labelKey: "dashboard.business.nav.profile", href: "/dashboard/business/profile", icon: "profile" },
 ];
 

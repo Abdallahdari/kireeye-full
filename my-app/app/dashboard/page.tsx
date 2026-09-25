@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/api-server";
-import { DashboardView } from "./dashboard-view";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -17,5 +16,6 @@ export default async function DashboardPage() {
     redirect("/dashboard/business");
   }
 
-  return <DashboardView user={user} />;
+  // Tenants don't have a dashboard — send them back to browsing.
+  redirect("/");
 }

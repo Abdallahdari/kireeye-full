@@ -11,7 +11,7 @@ const router = Router();
  * /contact:
  *   post:
  *     tags: [Contact]
- *     summary: Send a message to the Stayly team (public)
+ *     summary: Send a message to the Kireeye team (public)
  *     description: Emails the message to CONTACT_EMAIL (falls back to SMTP_USER). Replies go to the sender's email.
  *     requestBody:
  *       required: true

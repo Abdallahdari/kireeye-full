@@ -69,7 +69,7 @@ export const exportBusinesses = asyncHandler(async (req: Request, res: Response)
     metadata: { filters, rows: (workbook.getWorksheet("Businesses")?.actualRowCount ?? 1) - 1 },
   });
 
-  const filename = `stayly-billing-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  const filename = `kireeye-billing-${new Date().toISOString().slice(0, 10)}.xlsx`;
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
   res.setHeader("Cache-Control", "no-store");

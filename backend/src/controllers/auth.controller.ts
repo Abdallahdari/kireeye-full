@@ -22,7 +22,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(201).json({
     success: true,
-    message: "Registration successful. Please check your email to verify your account.",
+    message: "Registration successful. You can now log in.",
     data: { user },
   });
 });

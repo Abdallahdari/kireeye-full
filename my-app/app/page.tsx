@@ -1,23 +1,52 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Building2 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { PropertyCard } from "@/components/property-card";
+import { BlogCard } from "@/components/blog-card";
+import { PropertyGridSkeleton } from "@/components/property-card-skeleton";
+import { ComingSoonSlider } from "@/components/coming-soon-slider";
+import { HeroSlider } from "@/components/hero-slider";
+import { HowItWorks } from "@/components/how-it-works";
 import { EmptyState } from "@/components/ui/empty-state";
 import * as api from "@/lib/api-client";
 import { MOGADISHU_DISTRICTS } from "@/lib/locations";
-import type { Property } from "@/lib/types";
+import type { BlogPost, ComingSoonItem, Property } from "@/lib/types";
 
 const FEATURED_LIMIT = 6;
+const BLOG_LIMIT = 3;
 
 export default function Home() {
   const { t } = useLanguage();
   const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loadingListings, setLoadingListings] = useState(true);
+  const [slides, setSlides] = useState<ComingSoonItem[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    // Both sections are optional extras: on failure they simply stay hidden.
+    api
+      .listComingSoon()
+      .then(({ items }) => {
+        if (!cancelled) setSlides(items);
+      })
+      .catch(() => undefined);
+    api
+      .listBlogPosts({ limit: BLOG_LIMIT })
+      .then(({ posts }) => {
+        if (!cancelled) setPosts(posts);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +76,12 @@ export default function Home() {
     router.push(qs ? `/properties?${qs}` : "/properties");
   }
 
+  const ownerFacts = [
+    { title: t("home.ownersFact1Title"), body: t("home.ownersFact1Body") },
+    { title: t("home.ownersFact2Title"), body: t("home.ownersFact2Body") },
+    { title: t("home.ownersFact3Title"), body: t("home.ownersFact3Body") },
+  ];
+
   const steps = [
     { title: t("home.step1Title"), description: t("home.step1Body") },
     { title: t("home.step2Title"), description: t("home.step2Body") },
@@ -55,26 +90,32 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="bg-gradient-to-b from-rose-50 to-white px-6 py-20">
+      <HeroSlider>
         <div className="mx-auto flex max-w-6xl flex-col items-center text-center">
-          <span className="rounded-full bg-rose-100 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-rose-700">
+          <span className="rounded-full bg-white/15 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-white ring-1 ring-white/30 backdrop-blur">
             {t("home.badge")}
           </span>
-          <h1 className="mt-6 max-w-2xl text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">
+          <h1 className="mt-6 max-w-2xl text-4xl font-semibold tracking-tight text-white drop-shadow sm:text-5xl">
             {t("home.title")}
           </h1>
-          <p className="mt-4 max-w-xl text-lg text-zinc-600">{t("home.subtitle")}</p>
+          <p className="mt-4 max-w-xl text-lg text-zinc-100">{t("home.subtitle")}</p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
+              href="/properties"
+              className="rounded-full bg-gradient-to-r from-rose-600 to-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-black/30 transition hover:brightness-110"
+            >
+              {t("home.browseProperties")} →
+            </Link>
+            <Link
               href="/register"
-              className="rounded-full bg-rose-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-rose-700"
+              className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-900 shadow-sm hover:bg-zinc-100"
             >
               {t("home.getStarted")}
             </Link>
             <Link
               href="/login"
-              className="rounded-full border border-zinc-200 bg-white px-6 py-3 text-sm font-semibold text-zinc-900 hover:bg-zinc-50"
+              className="rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur hover:bg-white/20"
             >
               {t("home.logIn")}
             </Link>
@@ -125,13 +166,21 @@ export default function Home() {
             </label>
             <button
               type="submit"
-              className="rounded-full bg-gradient-to-r from-rose-600 to-orange-500 px-6 py-3 text-center text-sm font-semibold text-white shadow-md shadow-rose-200 transition hover:brightness-110"
+              className="rounded-full bg-gradient-to-r from-rose-600 to-orange-500 px-6 py-3 text-center text-sm font-semibold text-white shadow-md shadow-black/20 transition hover:brightness-110"
             >
               {t("home.search")}
             </button>
           </form>
         </div>
-      </section>
+      </HeroSlider>
+
+      {slides.length > 0 && (
+        <section className="px-6 pt-4">
+          <div className="mx-auto flex max-w-6xl justify-center">
+            <ComingSoonSlider items={slides} />
+          </div>
+        </section>
+      )}
 
       <section className="px-6 py-16">
         <div className="mx-auto max-w-6xl">
@@ -142,11 +191,7 @@ export default function Home() {
             </Link>
           </div>
           {loadingListings ? (
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 3 }, (_, i) => (
-                <div key={i} className="h-96 animate-pulse rounded-2xl bg-zinc-100" />
-              ))}
-            </div>
+            <PropertyGridSkeleton count={3} className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" />
           ) : properties.length === 0 ? (
             <EmptyState
               className="mt-8"
@@ -172,35 +217,72 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how-it-works" className="border-t border-zinc-100 bg-zinc-50 px-6 py-16">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="text-2xl font-semibold text-zinc-900">{t("home.howItWorksTitle")}</h2>
-          <div className="mt-8 grid gap-8 sm:grid-cols-3">
-            {steps.map((step, i) => (
-              <div key={step.title} className="rounded-2xl bg-white p-6 shadow-sm">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-600 text-sm font-semibold text-white">
-                  {i + 1}
-                </span>
-                <h3 className="mt-4 font-semibold text-zinc-900">{step.title}</h3>
-                <p className="mt-2 text-sm text-zinc-600">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HowItWorks steps={steps} />
 
-      <section className="px-6 py-16">
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-rose-500 px-8 py-14 text-center text-white shadow-xl shadow-violet-200">
-          <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-20 -right-10 h-64 w-64 rounded-full bg-orange-300/30 blur-3xl" />
-          <h2 className="relative text-3xl font-bold">{t("home.ctaTitle")}</h2>
-          <p className="relative mt-2 max-w-md text-violet-50/90">{t("home.ctaSubtitle")}</p>
-          <Link
-            href="/register"
-            className="relative mt-6 rounded-full bg-white px-6 py-3 text-sm font-semibold text-violet-700 shadow-lg hover:bg-violet-50"
-          >
-            {t("home.ctaButton")}
-          </Link>
+      {posts.length > 0 && (
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-zinc-900">{t("home.blogTitle")}</h2>
+                <p className="mt-1 text-sm text-zinc-500">{t("home.blogSubtitle")}</p>
+              </div>
+              <Link href="/blog" className="shrink-0 text-sm font-semibold text-rose-600 hover:text-rose-700">
+                {t("home.viewAll")} →
+              </Link>
+            </div>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => (
+                <BlogCard key={post._id} post={post} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section aria-labelledby="owners-title" className="bg-[#F3F5F7] px-6 py-20 sm:py-24">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[5fr_7fr] lg:gap-20">
+          {/* The arch echoes the logo's doorway: the one decorative gesture on this section. */}
+          <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-t-full bg-[#DFE4EA] lg:max-w-none">
+            <Image
+              src="/hero/hero-3.jpg"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 40vw, 384px"
+              className="object-cover"
+            />
+          </div>
+
+          <div>
+            <h2 id="owners-title" className="max-w-xl text-3xl font-semibold tracking-[-0.02em] text-[#16202B] sm:text-4xl">
+              {t("home.ctaTitle")}
+            </h2>
+            <p className="mt-4 max-w-lg leading-relaxed text-[#4A5868]">{t("home.ctaSubtitle")}</p>
+
+            <dl className="mt-10 divide-y divide-[#D9DFE6] border-y border-[#D9DFE6]">
+              {ownerFacts.map((fact) => (
+                <div key={fact.title} className="grid gap-1 py-5 sm:grid-cols-[15rem_1fr] sm:gap-8">
+                  <dt className="font-semibold text-[#16202B]">{fact.title}</dt>
+                  <dd className="text-sm leading-relaxed text-[#4A5868]">{fact.body}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Link
+                href="/register"
+                className="rounded-full bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-rose-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+              >
+                {t("home.ctaButton")}
+              </Link>
+              <Link
+                href="/contact#faq"
+                className="rounded-full border border-[#16202B]/20 px-6 py-3 text-sm font-semibold text-[#16202B] transition-colors hover:border-[#16202B]/40 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16202B]"
+              >
+                {t("home.ownersPricing")}
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>

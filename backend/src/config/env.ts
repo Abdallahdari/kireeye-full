@@ -27,6 +27,13 @@ export const env = {
   // process working directory (the backend folder / /app in Docker).
   uploadDir: path.resolve(process.env.UPLOAD_DIR ?? "uploads"),
 
+  // When S3_BUCKET is set, uploaded images go to S3 instead of uploadDir. The
+  // SDK reads AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY from the environment.
+  s3: {
+    bucket: (process.env.S3_BUCKET ?? process.env.AWS_S3_BUCKET_NAME)?.trim() || null,
+    region: process.env.AWS_REGION?.trim() || "us-east-1",
+  },
+
   superAdmin: {
     firstName: process.env.SUPER_ADMIN_FIRST_NAME,
     lastName: process.env.SUPER_ADMIN_LAST_NAME,
@@ -47,7 +54,7 @@ export const env = {
     port: Number(process.env.SMTP_PORT ?? 465),
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    from: process.env.EMAIL_FROM ?? `Stayly <${process.env.SMTP_USER ?? "no-reply@stayly.local"}>`,
+    from: process.env.EMAIL_FROM ?? `Kireeye <${process.env.SMTP_USER ?? "no-reply@kireeye.local"}>`,
   },
 
   // Inbox that receives contact-form messages. Defaults to the SMTP account.

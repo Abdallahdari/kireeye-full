@@ -151,3 +151,39 @@ export interface BillingTotals {
   revenueThisMonth: number;
   monthlyPriceUsd: number;
 }
+
+// A slide in the home page hero's "Coming soon" slider, managed by admins.
+export interface ComingSoonItem {
+  _id: string;
+  title: string;
+  description: string;
+  location: string;
+  // Internal path ("/properties") or http(s) URL; empty for no button.
+  link: string;
+  image: string;
+  isActive: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BlogAuthor {
+  _id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface BlogPost {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  // Plain text, blank lines between paragraphs. Left out of the public list.
+  content?: string;
+  coverImage: string | null;
+  author: BlogAuthor | null;
+  isPublished: boolean;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

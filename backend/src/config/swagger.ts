@@ -36,6 +36,8 @@ const definition: swaggerJSDoc.OAS3Definition = {
     { name: "Properties", description: "Property listings posted by approved businesses" },
     { name: "Billing", description: "Free listing allowance, monthly subscriptions and WaafiPay payments" },
     { name: "Contact", description: "Public contact form" },
+    { name: "Coming soon", description: "Admin-managed slides for the home page hero slider" },
+    { name: "Blog", description: "Blog posts written by admins" },
   ],
   components: {
     securitySchemes: {

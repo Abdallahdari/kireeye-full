@@ -2,13 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Building2, Flag, ShieldCheck, Sparkles, Users, UsersRound } from "lucide-react";
+import { ArrowRight, Building2, Flag, ShieldCheck, Wallet, Sparkles, Users, UsersRound } from "lucide-react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { StatCard } from "@/components/ui/stat-card";
+import { RecentListings } from "@/components/dashboard/recent-listings";
 import { DonutChart, BarList, type ChartDatum } from "@/components/ui/charts";
 import { useLanguage } from "@/components/language-provider";
 import type { Report, Role, User } from "@/lib/types";
 import * as api from "@/lib/api-client";
+import { formatUsd } from "@/lib/format";
 
 interface Counts {
   ALL: number;
@@ -17,6 +19,8 @@ interface Counts {
   SUPER_ADMIN: number;
   pendingApprovals: number;
   openReports: number;
+  revenueTotal: number;
+  revenueThisMonth: number;
 }
 
 interface ActivityItem {
@@ -41,8 +45,9 @@ export function AdminOverview({ currentUser }: { currentUser: User }) {
       api.listUsers({ role: "SUPER_ADMIN", limit: 1 }),
       api.listUsers({ role: "BUSINESS", businessApproval: "PENDING", limit: 1 }),
       api.listReports({ status: "OPEN", limit: 1 }),
+      api.listBillingBusinesses({ limit: 1 }),
     ])
-      .then(([all, tenants, businesses, admins, pending, open]) => {
+      .then(([all, tenants, businesses, admins, pending, open, billing]) => {
         if (cancelled) return;
         setCounts({
           ALL: all.pagination.total,
@@ -51,6 +56,8 @@ export function AdminOverview({ currentUser }: { currentUser: User }) {
           SUPER_ADMIN: admins.pagination.total,
           pendingApprovals: pending.pagination.total,
           openReports: open.pagination.total,
+          revenueTotal: billing.totals.revenueTotal,
+          revenueThisMonth: billing.totals.revenueThisMonth,
         });
       })
       .catch(() => {
@@ -111,6 +118,13 @@ export function AdminOverview({ currentUser }: { currentUser: User }) {
       tone: "amber" as const,
     },
     { label: t("dashboard.admin.overview.openReports"), value: counts?.openReports, icon: Flag, tone: "violet" as const },
+    {
+      label: t("dashboard.admin.overview.totalPayments"),
+      value: counts ? formatUsd(counts.revenueTotal) : undefined,
+      hint: counts ? t("dashboard.admin.overview.paymentsThisMonth", { amount: formatUsd(counts.revenueThisMonth) }) : undefined,
+      icon: Wallet,
+      tone: "emerald" as const,
+    },
   ];
 
   const quickActions = [
@@ -138,9 +152,16 @@ export function AdminOverview({ currentUser }: { currentUser: User }) {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {statCards.map((card) => (
-          <StatCard key={card.label} icon={card.icon} tone={card.tone} label={card.label} value={card.value} />
+          <StatCard
+            key={card.label}
+            icon={card.icon}
+            tone={card.tone}
+            label={card.label}
+            value={card.value}
+            hint={"hint" in card ? card.hint : undefined}
+          />
         ))}
       </div>
 
@@ -184,6 +205,8 @@ export function AdminOverview({ currentUser }: { currentUser: User }) {
           </div>
         </Card>
       </div>
+
+      <RecentListings mode="admin" />
 
       <Card>
         <CardHeader title={t("dashboard.admin.overview.recentActivityTitle")} />
