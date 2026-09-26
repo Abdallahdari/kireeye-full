@@ -42,6 +42,17 @@ export const env = {
     phone: process.env.SUPER_ADMIN_PHONE,
   },
 
+  // Which proxies to believe X-Forwarded-For from (Express "trust proxy").
+  // The default trusts private networks only — the Next.js server and Docker
+  // network — so the rate limiters see each visitor's IP, not the proxy's.
+  trustProxy: process.env.TRUST_PROXY ?? "loopback, linklocal, uniquelocal",
+
+  // General limit for every /api route (per client IP, per minute).
+  apiRateLimit: {
+    windowMs: Number(process.env.API_RATE_LIMIT_WINDOW_MS ?? 60 * 1000),
+    max: Number(process.env.API_RATE_LIMIT_MAX ?? 300),
+  },
+
   authRateLimit: {
     windowMs: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000),
     max: Number(process.env.AUTH_RATE_LIMIT_MAX ?? 20),

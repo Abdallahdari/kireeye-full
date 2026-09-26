@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1140.0",
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -46,5 +46,8 @@
     "tsx": "^4.16.5",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }

@@ -56,7 +56,6 @@ export function PropertyListings({ mode }: { mode: "business" | "admin" }) {
   const [success, setSuccess] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [refreshIndex, setRefreshIndex] = useState(0);
   // Admin filters: `draft` is what's in the inputs, `filters` is what's applied.
   const [draft, setDraft] = useState<AdminFilters>(EMPTY_FILTERS);
@@ -125,30 +124,44 @@ export function PropertyListings({ mode }: { mode: "business" | "admin" }) {
     }
   }
 
-  function handleCreated() {
+  function handleCreated(property: Property) {
     setShowForm(false);
     setSuccess(t("listings.published"));
-    setPage(1);
-    setRefreshIndex((i) => i + 1);
     loadBilling();
+    if (page === 1) {
+      // Show the new listing straight from the response instead of waiting
+      // on a refetch.
+      setProperties((prev) => [property, ...prev].slice(0, PAGE_SIZE));
+      setPagination((p) => p && { ...p, total: p.total + 1, pages: Math.ceil((p.total + 1) / p.limit) });
+    } else {
+      setPage(1);
+    }
   }
 
   async function handleDelete(id: string) {
-    setDeletingId(id);
+    const index = properties.findIndex((p) => p._id === id);
+    if (index === -1) return;
+    const removed = properties[index];
+
+    // Remove the card immediately; put it back if the server refuses.
+    setConfirmId(null);
     setError(null);
     setSuccess(null);
+    setProperties((prev) => prev.filter((p) => p._id !== id));
+    setPagination((p) => p && { ...p, total: p.total - 1 });
+
     try {
       await api.deleteProperty(id);
       setSuccess(t("listings.deleted"));
       loadBilling();
-      // Step back a page if we just removed the last item on it.
+      // Step back a page if we just removed the last item on it; otherwise
+      // refetch quietly so the next listing moves up to fill the gap.
       if (properties.length === 1 && page > 1) setPage(page - 1);
       else setRefreshIndex((i) => i + 1);
     } catch (err) {
+      setProperties((prev) => [...prev.slice(0, index), removed, ...prev.slice(index)]);
+      setPagination((p) => p && { ...p, total: p.total + 1 });
       setError(err instanceof api.ApiClientError ? err.message : t("listings.errorDelete"));
-    } finally {
-      setDeletingId(null);
-      setConfirmId(null);
     }
   }
 
@@ -297,7 +310,6 @@ export function PropertyListings({ mode }: { mode: "business" | "admin" }) {
           <div className="grid gap-5 p-5 sm:grid-cols-2 xl:grid-cols-3">
             {properties.map((property) => {
               const isConfirming = confirmId === property._id;
-              const isDeleting = deletingId === property._id;
 
               return (
                 <PropertyCard
@@ -310,7 +322,6 @@ export function PropertyListings({ mode }: { mode: "business" | "admin" }) {
                       <>
                         <Button
                           className="bg-red-600 px-3 py-1.5 text-xs hover:bg-red-700"
-                          loading={isDeleting}
                           onClick={() => handleDelete(property._id)}
                         >
                           {t("listings.confirmDelete")}
@@ -318,7 +329,6 @@ export function PropertyListings({ mode }: { mode: "business" | "admin" }) {
                         <Button
                           variant="secondary"
                           className="px-3 py-1.5 text-xs"
-                          disabled={isDeleting}
                           onClick={() => setConfirmId(null)}
                         >
                           {t("listings.form.cancel")}

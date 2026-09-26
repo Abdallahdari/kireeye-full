@@ -18,6 +18,17 @@ export function errorHandler(
     return;
   }
 
+  // Malformed JSON, oversized bodies, etc. from express.json(): client errors.
+  const type = err && typeof err === "object" ? (err as { type?: string }).type : undefined;
+  if (type === "entity.parse.failed") {
+    res.status(400).json({ success: false, message: "Invalid JSON in request body" });
+    return;
+  }
+  if (type === "entity.too.large") {
+    res.status(413).json({ success: false, message: "Request body is too large" });
+    return;
+  }
+
   if (err && typeof err === "object" && (err as { code?: number }).code === 11000) {
     res.status(409).json({ success: false, message: "Duplicate value: this record already exists" });
     return;

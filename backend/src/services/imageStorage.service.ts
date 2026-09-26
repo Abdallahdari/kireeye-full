@@ -4,7 +4,6 @@ import { Readable } from "stream";
 import {
   S3Client,
   PutObjectCommand,
-  DeleteObjectCommand,
   DeleteObjectsCommand,
   GetObjectCommand,
   ListObjectVersionsCommand,
@@ -78,11 +77,10 @@ async function deleteAllVersions(client: S3Client, key: string): Promise<void> {
     .filter((v) => v.Key === key && v.VersionId)
     .map((v) => ({ Key: key, VersionId: v.VersionId! }));
 
-  if (versions.length === 0) {
-    // Unversioned bucket (or nothing there): a plain delete is enough.
-    await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
-    return;
-  }
+  // Nothing stored under this key. (Unversioned buckets list their objects
+  // with VersionId "null", so this also covers them.) A plain DeleteObject
+  // here would only add an empty delete marker on a versioned bucket.
+  if (versions.length === 0) return;
 
   const res = await client.send(new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: versions, Quiet: true } }));
   if (res.Errors?.length) {

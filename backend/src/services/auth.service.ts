@@ -33,11 +33,16 @@ export async function registerUser(input: RegisterInput): Promise<IUser> {
   return user;
 }
 
+/** Signs the user out everywhere by invalidating every token issued so far. */
+export async function revokeSessions(userId: string): Promise<void> {
+  await User.updateOne({ _id: userId }, { $inc: { tokenVersion: 1 } });
+}
+
 export async function loginUser(
   email: string,
   password: string
 ): Promise<{ user: IUser; token: string }> {
-  const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
+  const user = await User.findOne({ email: email.toLowerCase() }).select("+password +tokenVersion");
 
   const genericError = () => new AppError("Invalid email or password", 401);
 
@@ -69,7 +74,7 @@ export async function loginUser(
   user.lastLoginAt = new Date();
   await user.save();
 
-  const token = signToken({ sub: user._id.toString(), role: user.role });
+  const token = signToken({ sub: user._id.toString(), role: user.role, tv: user.tokenVersion ?? 0 });
 
   return { user, token };
 }
@@ -106,6 +111,8 @@ export async function resetPassword(rawToken: string, newPassword: string): Prom
   user.passwordResetTokenHash = null;
   user.passwordResetExpires = null;
   await user.save();
+  // A reset means the old password may be compromised: end every session.
+  await revokeSessions(user._id.toString());
 }
 
 export async function verifyEmail(rawToken: string): Promise<IUser> {

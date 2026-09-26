@@ -39,23 +39,45 @@ function imageMulter(maxFiles: number) {
   });
 }
 
+// The browser-supplied MIME type is only a claim; the file's first bytes
+// have to match it before anything is stored.
+function hasImageSignature(buf: Buffer, mimetype: string): boolean {
+  switch (mimetype) {
+    case "image/jpeg":
+      return buf.length > 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
+    case "image/png":
+      return buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    case "image/webp":
+      return buf.subarray(0, 4).toString("ascii") === "RIFF" && buf.subarray(8, 12).toString("ascii") === "WEBP";
+    default:
+      return false;
+  }
+}
+
 /**
  * Stores each buffered file under a random name in `folder`. Sets
  * `file.filename` (used to build the URL) and `file.path` (the storage key,
  * used to clean up if the request fails later).
  */
 async function persistFiles(folder: ImageFolder, files: Express.Multer.File[]): Promise<void> {
-  const saved: string[] = [];
-  try {
-    for (const file of files) {
+  if (files.some((file) => !hasImageSignature(file.buffer, file.mimetype))) {
+    throw new AppError("That file isn't a valid JPEG, PNG, or WebP image", 400);
+  }
+
+  // Upload all images at once rather than one after another.
+  const results = await Promise.allSettled(
+    files.map(async (file) => {
       const filename = `${crypto.randomBytes(16).toString("hex")}${ALLOWED_IMAGE_TYPES[file.mimetype]}`;
       const key = `${folder}/${filename}`;
       await saveImage(key, file.buffer, file.mimetype);
-      saved.push(key);
       file.filename = filename;
       file.path = key;
-    }
-  } catch {
+      return key;
+    })
+  );
+
+  if (results.some((r) => r.status === "rejected")) {
+    const saved = results.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
     await Promise.all(saved.map(deleteImage));
     throw new AppError("Unable to save the image right now. Please try again.", 502);
   }

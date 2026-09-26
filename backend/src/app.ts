@@ -5,12 +5,15 @@ import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import routes from "./routes";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler";
+import { apiRateLimiter } from "./middleware/rateLimit";
 import { env } from "./config/env";
 import { swaggerSpec } from "./config/swagger";
 import { UPLOADS_PUBLIC_PATH, serveImageFromS3 } from "./middleware/upload";
 
 export function createApp(): Application {
   const app = express();
+
+  app.set("trust proxy", env.trustProxy);
 
   app.use(
     helmet({
@@ -47,7 +50,7 @@ export function createApp(): Application {
     express.static(env.uploadDir, { maxAge: "30d", immutable: true, index: false, fallthrough: true })
   );
 
-  app.use("/api", routes);
+  app.use("/api", apiRateLimiter, routes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

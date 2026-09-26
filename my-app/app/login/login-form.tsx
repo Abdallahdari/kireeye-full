@@ -29,7 +29,7 @@ function LoginFormFields() {
     try {
       const { user } = await api.login(email, password);
       setUser(user);
-      router.push(searchParams.get("next") ?? "/dashboard");
+      router.push(safeNextPath(searchParams.get("next")));
       router.refresh();
     } catch (err) {
       setError(err instanceof api.ApiClientError ? err.message : "Unable to log in right now.");
@@ -89,4 +89,10 @@ export function LoginForm() {
       <LoginFormFields />
     </Suspense>
   );
+}
+
+/** Only same-site paths ("/x"), never "//evil.site", "/\\evil.site" or "https://…". */
+function safeNextPath(next: string | null): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return "/dashboard";
+  return next;
 }

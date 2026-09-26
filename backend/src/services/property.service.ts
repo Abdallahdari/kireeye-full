@@ -10,6 +10,7 @@ import { SOMALI_CARRIERS, normalizeSomaliPhone } from "../utils/somaliPhone";
 import { escapeRegex, nationalDigits } from "../utils/search";
 import { reserveListingSlot, releaseListingSlot, syncListingVisibility } from "./billing.service";
 import { styleHeaderRow, USD_FORMAT, DATE_TIME_FORMAT } from "../utils/excel";
+import { logger } from "../utils/logger";
 
 // The public site shows who posted a listing and how to reach them; admins
 // also see the account email, city and role.
@@ -239,7 +240,10 @@ export async function deleteProperty(id: string, actor: IUser): Promise<IPropert
   }
 
   await property.deleteOne();
-  await deletePropertyImages(property.images);
+  // Image cleanup is slow (several S3 calls per image) and the listing is
+  // already gone, so don't make the user wait for it. deleteImage logs its
+  // own failures.
+  void deletePropertyImages(property.images).catch((err) => logger.error("Failed to delete listing images", err));
   // A hidden listing may now fit within the free allowance.
   await syncListingVisibility(property.owner);
 

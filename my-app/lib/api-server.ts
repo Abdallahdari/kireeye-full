@@ -1,11 +1,21 @@
 import { cache } from "react";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { BlogPost, Property, User } from "./types";
 
 // Server-to-server URL for the backend (see next.config.ts for the matching
 // browser-facing rewrite). Falls back to localhost for `npm run dev` outside Docker.
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL ?? "http://localhost:5000";
 const COOKIE_NAME = process.env.AUTH_COOKIE_NAME ?? "token";
+
+/**
+ * The backend rate-limits per client IP. Server-side fetches come from this
+ * server, so forward the visitor's address — otherwise every visitor would
+ * share one limit.
+ */
+async function forwardedFor(): Promise<Record<string, string>> {
+  const ip = (await headers()).get("x-forwarded-for");
+  return ip ? { "X-Forwarded-For": ip } : {};
+}
 
 /**
  * Reads the auth cookie from the incoming request and asks the backend who it
@@ -23,7 +33,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
   try {
     const res = await fetch(`${INTERNAL_API_URL}/api/auth/me`, {
-      headers: { Cookie: `${token.name}=${token.value}` },
+      headers: { ...(await forwardedFor()), Cookie: `${token.name}=${token.value}` },
       cache: "no-store",
     });
 
@@ -46,6 +56,7 @@ export async function getCurrentUser(): Promise<User | null> {
 export const getProperty = cache(async (id: string): Promise<Property | null> => {
   try {
     const res = await fetch(`${INTERNAL_API_URL}/api/properties/${encodeURIComponent(id)}`, {
+      headers: await forwardedFor(),
       cache: "no-store",
     });
 
@@ -64,6 +75,7 @@ export const getProperty = cache(async (id: string): Promise<Property | null> =>
 export const getBlogPost = cache(async (slug: string): Promise<BlogPost | null> => {
   try {
     const res = await fetch(`${INTERNAL_API_URL}/api/blog/${encodeURIComponent(slug)}`, {
+      headers: await forwardedFor(),
       cache: "no-store",
     });
 

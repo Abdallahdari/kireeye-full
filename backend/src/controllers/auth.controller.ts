@@ -63,6 +63,8 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   clearAuthCookie(res);
 
   if (req.user) {
+    // Clearing the cookie isn't enough — a copied token would stay valid.
+    await authService.revokeSessions(req.user._id.toString());
     await recordAuditLog({
       actor: req.user._id,
       action: AuditAction.LOGOUT,

@@ -28,6 +28,8 @@ export interface IUser extends Document {
   emailVerificationExpires: Date | null;
   passwordResetTokenHash: string | null;
   passwordResetExpires: Date | null;
+  // Bumped on logout and password reset; tokens carrying an older value are rejected.
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -73,6 +75,7 @@ const userSchema = new Schema<IUser>(
     emailVerificationExpires: { type: Date, default: null, select: false },
     passwordResetTokenHash: { type: String, default: null, select: false },
     passwordResetExpires: { type: Date, default: null, select: false },
+    tokenVersion: { type: Number, default: 0, select: false },
   },
   {
     timestamps: true,
@@ -84,6 +87,7 @@ const userSchema = new Schema<IUser>(
         delete (ret as Record<string, unknown>).passwordResetTokenHash;
         delete (ret as Record<string, unknown>).passwordResetExpires;
         delete (ret as Record<string, unknown>).billingSyncedPaid;
+        delete (ret as Record<string, unknown>).tokenVersion;
         delete (ret as Record<string, unknown>).__v;
         return ret;
       },

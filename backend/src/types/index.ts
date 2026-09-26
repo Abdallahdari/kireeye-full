@@ -7,6 +7,8 @@ export enum Role {
 export interface JwtPayload {
   sub: string;
   role: Role;
+  // Must match the user's tokenVersion; bumping it signs every session out.
+  tv?: number;
 }
 
 export enum AuditAction {

@@ -33,9 +33,9 @@ export async function authenticate(
       throw new AppError("Invalid or expired session, please log in again", 401);
     }
 
-    const user = await User.findById(payload.sub);
+    const user = await User.findById(payload.sub).select("+tokenVersion");
 
-    if (!user) {
+    if (!user || (payload.tv ?? 0) !== (user.tokenVersion ?? 0)) {
       throw new AppError("Invalid or expired session, please log in again", 401);
     }
 
