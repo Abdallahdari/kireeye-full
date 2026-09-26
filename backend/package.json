@@ -8,8 +8,7 @@
     "start": "node dist/src/server.js",
     "dev": "tsx watch src/server.ts",
     "seed:admin": "tsx scripts/seed-admin.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -44,8 +43,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "tsx": "^4.16.5",
-    "typescript": "^5.5.4",
-    "vitest": "^2.0.5"
+    "typescript": "^5.5.4"
   },
   "overrides": {
     "uuid": "^11.1.1"
